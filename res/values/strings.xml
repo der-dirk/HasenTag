@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Hasen Tag</string>
+    <string name="action_settings">Settings</string>
+    <string name="done_button_text">Getan</string>
+    <string name="stop_button_text">Erinnerungen aus</string>
+    <string name="reminder_text">Erinnerung:</string>
+    <string name="notification_title">Hasen Tag</string>
+    <string name="notification_message">Zeit zum Saubermachen!</string>
+    
+    <string name="seconds">Sekunden</string>
+    <string name="days">Tage</string>
+    <string name="weeks">Wochen</string>
+    
+    <string-array name="units_array">
+        <item>@string/seconds</item>
+        <item>@string/days</item>
+        <item>@string/weeks</item>
+    </string-array>
+</resources>
