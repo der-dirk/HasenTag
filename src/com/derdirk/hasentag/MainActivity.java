@@ -26,7 +26,6 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity  implements OnItemSelectedListener, OnEditorActionListener
 {
-  
   protected int mSmallCleaningIntervalUnit  = Calendar.SECOND;
   protected int mSmallCleaningIntervalValue = 5;
   protected int mBigCleaningIntervalUnit    = Calendar.WEEK_OF_YEAR;
@@ -35,12 +34,12 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   protected EditText              mNumberEdit            = null;
   protected Spinner               mUnitSpinner           = null;
   protected UnitToResourceMapping mUnitToResourceMapping = null;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		
+  
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    
     mNumberEdit            = (EditText) findViewById(R.id.number_edit);
     mUnitSpinner           = (Spinner)  findViewById(R.id.small_unit_spinner);
     mUnitToResourceMapping = new UnitToResourceMapping(this);
@@ -48,14 +47,14 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     mNumberEdit.setOnEditorActionListener(this);
     mUnitSpinner.setOnItemSelectedListener(this);
     
-  	// Create an ArrayAdapter using the string array and a default spinner layout
-  	ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-  	        R.array.units_array, android.R.layout.simple_spinner_item);
-  	// Specify the layout to use when the list of choices appears
-  	adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-  	// Apply the adapter to the spinner
-  	mUnitSpinner.setAdapter(adapter);
-	}
+    // Create an ArrayAdapter using the string array and a default spinner layout
+    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+            R.array.units_array, android.R.layout.simple_spinner_item);
+    // Specify the layout to use when the list of choices appears
+    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    // Apply the adapter to the spinner
+    mUnitSpinner.setAdapter(adapter);
+  }
 
   @Override
   protected void onResume()
@@ -91,21 +90,21 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     editor.commit();
   }
   
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-	
-	public void onDoneButtonPressed(View view)
-	{
-	  cancelAlert();
-	  NotificationManager nm = new NotificationManager(this);
-	  nm.clearNotification();
-	  setAlert();
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    // Inflate the menu; this adds items to the action bar if it is present.
+    getMenuInflater().inflate(R.menu.main, menu);
+    return true;
   }
-	
+  
+  public void onDoneButtonPressed(View view)
+  {
+    cancelAlert();
+    NotificationManager nm = new NotificationManager(this);
+    nm.clearNotification();
+    setAlert();
+  }
+  
   public void onStopButtonPressed(View view)
   {
     cancelAlert();
@@ -122,7 +121,7 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     {
       mSmallCleaningIntervalValue = Integer.valueOf(v.getText().toString()); // Is always a number
       
-      InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
       imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
       handled = true;
     }
@@ -136,34 +135,35 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     mSmallCleaningIntervalUnit = mUnitToResourceMapping.getUnit((String)mUnitSpinner.getItemAtPosition(pos));
   }
   
+  @Override
   public void onNothingSelected(AdapterView<?> parent)
   {}
 
-	protected void setAlert()
-	{
-	  Intent intent = new Intent(this, HasenTagService.class);   
-	  PendingIntent pendingServiceIntent = PendingIntent.getService(this, 0, intent, 0);
-	    
-	  AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-	  long alarmTimeInElapsedRealtime = AlarmTimeCalculator.getAlarmTime(mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue);
-	  alarm.set(AlarmManager.ELAPSED_REALTIME, alarmTimeInElapsedRealtime, pendingServiceIntent);
-	  
-	  SparseArray<String> calendarUnit = new SparseArray<String>();
-	  calendarUnit.put(Calendar.SECOND,       "Seconds");
-	  calendarUnit.put(Calendar.DAY_OF_YEAR , "Days");
-	  calendarUnit.put(Calendar.WEEK_OF_YEAR, "Weeks");
-	  
-	  CharSequence text = "Reminder will show in " + String.valueOf(mSmallCleaningIntervalValue) + " " + calendarUnit.get(mSmallCleaningIntervalUnit);
-	  Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-	}
-	
-	 protected void cancelAlert()
-	  {
-	   // TODO: Don't instantiate twice...
-	    Intent intent = new Intent(this, HasenTagService.class);   
-	    PendingIntent pendingServiceIntent = PendingIntent.getService(this, 0, intent, 0);
-	      
-	    AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-	    alarm.cancel(pendingServiceIntent);
-	  }
+  protected void setAlert()
+  {
+    Intent intent = new Intent(this, HasenTagService.class);   
+    PendingIntent pendingServiceIntent = PendingIntent.getService(this, 0, intent, 0);
+      
+    AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+    long alarmTimeInElapsedRealtime = AlarmTimeCalculator.getAlarmTime(mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue);
+    alarm.set(AlarmManager.ELAPSED_REALTIME, alarmTimeInElapsedRealtime, pendingServiceIntent);
+    
+    SparseArray<String> calendarUnit = new SparseArray<String>();
+    calendarUnit.put(Calendar.SECOND,       "Seconds");
+    calendarUnit.put(Calendar.DAY_OF_YEAR , "Days");
+    calendarUnit.put(Calendar.WEEK_OF_YEAR, "Weeks");
+    
+    CharSequence text = "Reminder will show in " + String.valueOf(mSmallCleaningIntervalValue) + " " + calendarUnit.get(mSmallCleaningIntervalUnit);
+    Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+  }
+  
+  protected void cancelAlert()
+  {
+    // TODO: Don't instantiate twice...
+    Intent intent = new Intent(this, HasenTagService.class);   
+    PendingIntent pendingServiceIntent = PendingIntent.getService(this, 0, intent, 0);
+      
+    AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+    alarm.cancel(pendingServiceIntent);
+  }
 }

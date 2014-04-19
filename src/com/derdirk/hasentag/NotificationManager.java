@@ -16,7 +16,8 @@ public class NotificationManager
     mApplicationContext = applicationContext;
   }
 
-  public Notification buildNotification() {
+  public Notification buildNotification()
+  {
     // Prepare intent which is triggered if the
     // notification is selected
     Intent intent = new Intent(mApplicationContext, MainActivity.class);
@@ -40,12 +41,14 @@ public class NotificationManager
     return noti;
   }
   
-  public void setNotification(Notification notification) {
+  public void setNotification(Notification notification)
+  {
     android.app.NotificationManager notificationManager = (android.app.NotificationManager) mApplicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
     notificationManager.notify(NOTIFICATION_ID, notification);
   }
   
-  public void clearNotification() {
+  public void clearNotification()
+  {
     android.app.NotificationManager notificationManager = (android.app.NotificationManager) mApplicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
     notificationManager.cancel(NOTIFICATION_ID);
   }

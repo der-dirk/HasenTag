@@ -5,15 +5,15 @@ import android.content.Intent;
 
 public class HasenTagService extends IntentService
 {
-	public HasenTagService()
-	{
-		super("HasenTagService");
-	}
-	
-	@Override
-	protected void onHandleIntent(Intent workIntent)
-	{
-	  NotificationManager nm = new NotificationManager(this);
-	  nm.setNotification(nm.buildNotification());
-	}
+  public HasenTagService()
+  {
+    super("HasenTagService");
+  }
+
+  @Override
+  protected void onHandleIntent(Intent workIntent)
+  {
+    NotificationManager nm = new NotificationManager(this);
+    nm.setNotification(nm.buildNotification());
+  }
 }

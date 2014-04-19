@@ -16,7 +16,7 @@ public class AlarmTimeCalculator
     cal.add(field, value);
     long thenMs = cal.getTimeInMillis();
     long alarmIntervallMs = thenMs - nowMs;
-    
+
     return elapsedTimeNowMs + alarmIntervallMs;
   }
 }
