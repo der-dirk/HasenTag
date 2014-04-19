@@ -150,8 +150,7 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     long alarmTimeInElapsedRealtime = AlarmTimeCalculator.getAlarmTime(mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue, alertTimeStringBuilder);
     alarm.set(AlarmManager.ELAPSED_REALTIME, alarmTimeInElapsedRealtime, pendingServiceIntent);
     
-    mNextReminderString = alertTimeStringBuilder.toString();
-    mNextReminderTextView.setText(mNextReminderString);
+    updateNextReminderString(alertTimeStringBuilder.toString());
     
     CharSequence text = getString(R.string.toast_message_pre)
         + " " + String.valueOf(mSmallCleaningIntervalValue)
@@ -169,6 +168,12 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
     alarm.cancel(pendingServiceIntent);
     
-    mNextReminderTextView.setText(getString(R.string.next_no_reminder_text));
+    updateNextReminderString(getString(R.string.next_no_reminder_text));
+  }
+  
+  protected void updateNextReminderString(String nextReminderString)
+  {
+    mNextReminderString = nextReminderString;
+    mNextReminderTextView.setText(mNextReminderString);
   }
 }
