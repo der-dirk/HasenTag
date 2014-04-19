@@ -9,30 +9,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.SparseArray;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
+import android.widget.NumberPicker;
+import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-public class MainActivity extends Activity  implements OnItemSelectedListener, OnEditorActionListener
+public class MainActivity extends Activity  implements OnItemSelectedListener, OnValueChangeListener
 {
   protected int mSmallCleaningIntervalUnit  = Calendar.SECOND;
   protected int mSmallCleaningIntervalValue = 5;
   protected int mBigCleaningIntervalUnit    = Calendar.WEEK_OF_YEAR;
   protected int mBigCleaningIntervalValue   = 4;
   
-  protected EditText              mNumberEdit            = null;
+  protected String mNextReminderString = null;
+  
+  protected NumberPicker          mNumberPicker          = null;
   protected Spinner               mUnitSpinner           = null;
+  protected TextView              mNextReminderTextView  = null;
   protected UnitToResourceMapping mUnitToResourceMapping = null;
   
   @Override
@@ -40,12 +39,16 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     
-    mNumberEdit            = (EditText) findViewById(R.id.number_edit);
+    mNumberPicker          = (NumberPicker) findViewById(R.id.number_picker);
     mUnitSpinner           = (Spinner)  findViewById(R.id.small_unit_spinner);
+    mNextReminderTextView  = (TextView) findViewById(R.id.next_reminder_text_view);
     mUnitToResourceMapping = new UnitToResourceMapping(this);
     
-    mNumberEdit.setOnEditorActionListener(this);
+    mNumberPicker.setOnValueChangedListener(this);
     mUnitSpinner.setOnItemSelectedListener(this);
+    
+    mNumberPicker.setMinValue(1);
+    mNumberPicker.setMaxValue(1000);
     
     // Create an ArrayAdapter using the string array and a default spinner layout
     ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -63,17 +66,22 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
 
     // Restore preferences
     SharedPreferences settings = getPreferences(MODE_PRIVATE);
-    mSmallCleaningIntervalUnit  = settings.getInt("SmallUnit",  Calendar.DAY_OF_YEAR);
-    mSmallCleaningIntervalValue = settings.getInt("SmallValue", 2);
-    mBigCleaningIntervalUnit    = settings.getInt("BigUnit",    Calendar.WEEK_OF_YEAR);
-    mBigCleaningIntervalValue   = settings.getInt("BigValue",   4);
+    mSmallCleaningIntervalUnit  = settings.getInt(   "SmallUnit",    Calendar.DAY_OF_YEAR);
+    mSmallCleaningIntervalValue = settings.getInt(   "SmallValue",   2);
+    mBigCleaningIntervalUnit    = settings.getInt(   "BigUnit",      Calendar.WEEK_OF_YEAR);
+    mBigCleaningIntervalValue   = settings.getInt(   "BigValue",     4);
+    mNextReminderString         = settings.getString("NextReminder", getString(R.string.next_reminder_default_text));
    
-    mNumberEdit.setText(String.valueOf(mSmallCleaningIntervalValue));    
+    mNumberPicker.setValue(mSmallCleaningIntervalValue);
+   
+    mNextReminderTextView.setText(mNextReminderString);
     
     ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) mUnitSpinner.getAdapter();
     String selectedItem = mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit);
     int selectedItemNr = adapter.getPosition(selectedItem);
     mUnitSpinner.setSelection(selectedItemNr);
+    
+    
   }
   
   @Override
@@ -83,10 +91,11 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     
     SharedPreferences settings = getPreferences(MODE_PRIVATE);
     SharedPreferences.Editor editor = settings.edit();
-    editor.putInt("SmallUnit",  mSmallCleaningIntervalUnit);
-    editor.putInt("SmallValue", mSmallCleaningIntervalValue);
-    editor.putInt("BigUnit",    mBigCleaningIntervalUnit);
-    editor.putInt("BigValue",   mBigCleaningIntervalUnit);      
+    editor.putInt(   "SmallUnit",    mSmallCleaningIntervalUnit);
+    editor.putInt(   "SmallValue",   mSmallCleaningIntervalValue);
+    editor.putInt(   "BigUnit",      mBigCleaningIntervalUnit);
+    editor.putInt(   "BigValue",     mBigCleaningIntervalValue);     
+    editor.putString("NextReminder", mNextReminderString);
     editor.commit();
   }
   
@@ -112,20 +121,11 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     nm.clearNotification();
   }
 
-  // EditText callback
+  // Number picker callback
   @Override
-  public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+  public void onValueChange(NumberPicker picker, int oldVal, int newVal)
   {
-    boolean handled = false;
-    if (actionId == EditorInfo.IME_ACTION_DONE)
-    {
-      mSmallCleaningIntervalValue = Integer.valueOf(v.getText().toString()); // Is always a number
-      
-      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-      handled = true;
-    }
-    return handled;
+    mSmallCleaningIntervalValue = newVal;
   }
   
   // Spinner callbacks 
@@ -144,16 +144,19 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     Intent intent = new Intent(this, HasenTagService.class);   
     PendingIntent pendingServiceIntent = PendingIntent.getService(this, 0, intent, 0);
       
+    StringBuilder alertTimeStringBuilder = new StringBuilder();
+    
     AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-    long alarmTimeInElapsedRealtime = AlarmTimeCalculator.getAlarmTime(mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue);
+    long alarmTimeInElapsedRealtime = AlarmTimeCalculator.getAlarmTime(mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue, alertTimeStringBuilder);
     alarm.set(AlarmManager.ELAPSED_REALTIME, alarmTimeInElapsedRealtime, pendingServiceIntent);
     
-    SparseArray<String> calendarUnit = new SparseArray<String>();
-    calendarUnit.put(Calendar.SECOND,       "Seconds");
-    calendarUnit.put(Calendar.DAY_OF_YEAR , "Days");
-    calendarUnit.put(Calendar.WEEK_OF_YEAR, "Weeks");
+    mNextReminderString = alertTimeStringBuilder.toString();
+    mNextReminderTextView.setText(mNextReminderString);
     
-    CharSequence text = "Reminder will show in " + String.valueOf(mSmallCleaningIntervalValue) + " " + calendarUnit.get(mSmallCleaningIntervalUnit);
+    CharSequence text = getString(R.string.toast_message_pre)
+        + " " + String.valueOf(mSmallCleaningIntervalValue)
+        + " " + mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit)
+        + " " + getString(R.string.toast_message_post);    
     Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
   }
   
@@ -165,5 +168,7 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
       
     AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
     alarm.cancel(pendingServiceIntent);
+    
+    mNextReminderTextView.setText(getString(R.string.next_no_reminder_text));
   }
 }

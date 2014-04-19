@@ -2,16 +2,21 @@
 <resources>
 
     <string name="app_name">Hasen Tag</string>
-    <string name="action_settings">Settings</string>
-    <string name="done_button_text">Getan</string>
-    <string name="stop_button_text">Erinnerungen aus</string>
-    <string name="reminder_text">Erinnerung:</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="done_button_text">Fertig</string>
+    <string name="stop_button_text">Erinnerungen Aus</string>
+    <string name="reminder_label_text">Erinnerung:</string>
+    <string name="next_reminder_label_text">Nächste Erinnerung:</string>
+    <string name="next_reminder_default_text">Unbekannt</string>
+    <string name="next_no_reminder_text">Keine</string>
     <string name="notification_title">Hasen Tag</string>
     <string name="notification_message">Zeit zum Saubermachen!</string>
+    <string name="toast_message_pre">Erinnerung wird in</string>
+    <string name="toast_message_post">angezeigt.</string>
     
-    <string name="seconds">Sekunden</string>
-    <string name="days">Tage</string>
-    <string name="weeks">Wochen</string>
+    <string name="seconds">Sekunde(n)</string>
+    <string name="days">Tag(e)</string>
+    <string name="weeks">Woche(n)</string>
     
     <string-array name="units_array">
         <item>@string/seconds</item>
