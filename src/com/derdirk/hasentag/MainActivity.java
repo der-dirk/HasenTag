@@ -35,13 +35,14 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   protected UnitToResourceMapping mUnitToResourceMapping = null;
   
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(Bundle savedInstanceState)
+  {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     
     mNumberPicker          = (NumberPicker) findViewById(R.id.number_picker);
-    mUnitSpinner           = (Spinner)  findViewById(R.id.small_unit_spinner);
-    mNextReminderTextView  = (TextView) findViewById(R.id.next_reminder_text_view);
+    mUnitSpinner           = (Spinner)      findViewById(R.id.small_unit_spinner);
+    mNextReminderTextView  = (TextView)     findViewById(R.id.next_reminder_text_view);
     mUnitToResourceMapping = new UnitToResourceMapping(this);
     
     mNumberPicker.setOnValueChangedListener(this);
@@ -51,8 +52,7 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     mNumberPicker.setMaxValue(1000);
     
     // Create an ArrayAdapter using the string array and a default spinner layout
-    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-            R.array.units_array, android.R.layout.simple_spinner_item);
+    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.units_array, android.R.layout.simple_spinner_item);
     // Specify the layout to use when the list of choices appears
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     // Apply the adapter to the spinner
@@ -66,22 +66,23 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
 
     // Restore preferences
     SharedPreferences settings = getPreferences(MODE_PRIVATE);
-    mSmallCleaningIntervalUnit  = settings.getInt(   "SmallUnit",    Calendar.DAY_OF_YEAR);
-    mSmallCleaningIntervalValue = settings.getInt(   "SmallValue",   2);
-    mBigCleaningIntervalUnit    = settings.getInt(   "BigUnit",      Calendar.WEEK_OF_YEAR);
-    mBigCleaningIntervalValue   = settings.getInt(   "BigValue",     4);
+    mSmallCleaningIntervalUnit  = settings.getInt("SmallUnit",    Calendar.DAY_OF_YEAR);
+    mSmallCleaningIntervalValue = settings.getInt("SmallValue",   2);
+    mBigCleaningIntervalUnit    = settings.getInt("BigUnit",      Calendar.WEEK_OF_YEAR);
+    mBigCleaningIntervalValue   = settings.getInt("BigValue",     4);
     mNextReminderString         = settings.getString("NextReminder", getString(R.string.next_reminder_default_text));
-   
+    
+    // Init intervall picker
     mNumberPicker.setValue(mSmallCleaningIntervalValue);
    
-    mNextReminderTextView.setText(mNextReminderString);
-    
+    // Init unit picker
     ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) mUnitSpinner.getAdapter();
     String selectedItem = mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit);
     int selectedItemNr = adapter.getPosition(selectedItem);
     mUnitSpinner.setSelection(selectedItemNr);
-    
-    
+
+    // Init reminder text
+    mNextReminderTextView.setText(mNextReminderString);
   }
   
   @Override
@@ -89,6 +90,7 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   {
     super.onPause();
     
+    // Safe preferences
     SharedPreferences settings = getPreferences(MODE_PRIVATE);
     SharedPreferences.Editor editor = settings.edit();
     editor.putInt(   "SmallUnit",    mSmallCleaningIntervalUnit);
@@ -100,7 +102,8 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   }
   
   @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
+  public boolean onCreateOptionsMenu(Menu menu)
+  {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.main, menu);
     return true;
