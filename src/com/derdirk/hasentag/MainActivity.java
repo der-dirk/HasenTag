@@ -1,6 +1,7 @@
 package com.derdirk.hasentag;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -9,7 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -22,12 +23,12 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity  implements OnItemSelectedListener, OnValueChangeListener
 {
-  protected int mSmallCleaningIntervalUnit  = Calendar.SECOND;
-  protected int mSmallCleaningIntervalValue = 5;
-  protected int mBigCleaningIntervalUnit    = Calendar.WEEK_OF_YEAR;
-  protected int mBigCleaningIntervalValue   = 4;
-  
-  protected String mNextReminderString = null;
+  protected int    mSmallCleaningIntervalUnit  = Calendar.SECOND;
+  protected int    mSmallCleaningIntervalValue = 5;
+  protected int    mBigCleaningIntervalUnit    = Calendar.WEEK_OF_YEAR;
+  protected int    mBigCleaningIntervalValue   = 4;
+  protected long   mReferenceTimeMs            = 0;
+  protected long   mAlertTimeMs                = 0;
   
   protected NumberPicker          mNumberPicker          = null;
   protected Spinner               mUnitSpinner           = null;
@@ -66,13 +67,14 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
 
     // Restore preferences
     SharedPreferences settings = getPreferences(MODE_PRIVATE);
-    mSmallCleaningIntervalUnit  = settings.getInt("SmallUnit",    Calendar.DAY_OF_YEAR);
-    mSmallCleaningIntervalValue = settings.getInt("SmallValue",   2);
-    mBigCleaningIntervalUnit    = settings.getInt("BigUnit",      Calendar.WEEK_OF_YEAR);
-    mBigCleaningIntervalValue   = settings.getInt("BigValue",     4);
-    mNextReminderString         = settings.getString("NextReminder", getString(R.string.next_reminder_default_text));
+    mSmallCleaningIntervalUnit  = settings.getInt( "SmallUnit",     Calendar.DAY_OF_YEAR);
+    mSmallCleaningIntervalValue = settings.getInt( "SmallValue",    2);
+    mBigCleaningIntervalUnit    = settings.getInt( "BigUnit",       Calendar.WEEK_OF_YEAR);
+    mBigCleaningIntervalValue   = settings.getInt( "BigValue",      4);
+    mReferenceTimeMs            = settings.getLong("ReferenceTime", 0);
+    mAlertTimeMs                = settings.getLong("AlertTime",     0);
     
-    // Init intervall picker
+    // Init interval picker
     mNumberPicker.setValue(mSmallCleaningIntervalValue);
    
     // Init unit picker
@@ -80,9 +82,9 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     String selectedItem = mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit);
     int selectedItemNr = adapter.getPosition(selectedItem);
     mUnitSpinner.setSelection(selectedItemNr);
-
-    // Init reminder text
-    mNextReminderTextView.setText(mNextReminderString);
+    
+    // Update reminder text
+    updateNextAlertText();
   }
   
   @Override
@@ -90,23 +92,16 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   {
     super.onPause();
     
-    // Safe preferences
+    // Save preferences
     SharedPreferences settings = getPreferences(MODE_PRIVATE);
     SharedPreferences.Editor editor = settings.edit();
-    editor.putInt(   "SmallUnit",    mSmallCleaningIntervalUnit);
-    editor.putInt(   "SmallValue",   mSmallCleaningIntervalValue);
-    editor.putInt(   "BigUnit",      mBigCleaningIntervalUnit);
-    editor.putInt(   "BigValue",     mBigCleaningIntervalValue);     
-    editor.putString("NextReminder", mNextReminderString);
+    editor.putInt( "SmallUnit",     mSmallCleaningIntervalUnit);
+    editor.putInt( "SmallValue",    mSmallCleaningIntervalValue);
+    editor.putInt( "BigUnit",       mBigCleaningIntervalUnit);
+    editor.putInt( "BigValue",      mBigCleaningIntervalValue);
+    editor.putLong("ReferenceTime", mReferenceTimeMs);
+    editor.putLong("AlertTime",     mAlertTimeMs);
     editor.commit();
-  }
-  
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu)
-  {
-    // Inflate the menu; this adds items to the action bar if it is present.
-    getMenuInflater().inflate(R.menu.main, menu);
-    return true;
   }
   
   public void onDoneButtonPressed(View view)
@@ -114,14 +109,38 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     cancelAlert();
     NotificationManager nm = new NotificationManager(this);
     nm.clearNotification();
-    setAlert();
+    
+    if (Calendar.getInstance().getTimeInMillis() < mAlertTimeMs)
+      Log.d("MainActivity", "Reset reference time due to early 'done'");
+    
+    // Reset reference time if the done button was pressed before an alert was issued
+    // or if the reference time was not set yet
+    if (mReferenceTimeMs == 0 || Calendar.getInstance().getTimeInMillis() < mAlertTimeMs)
+      mReferenceTimeMs = Calendar.getInstance().getTimeInMillis();
+      
+    mAlertTimeMs = AlarmTimeCalculator.getAlarmTime(mReferenceTimeMs, mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue);
+    
+    setAlert(mAlertTimeMs);
+    
+    updateNextAlertText();
+    
+    CharSequence text = getString(R.string.toast_message_pre)
+        + " " + String.valueOf(mSmallCleaningIntervalValue)
+        + " " + mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit)
+        + " " + getString(R.string.toast_message_post);    
+    Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
   }
   
   public void onStopButtonPressed(View view)
   {
+    mReferenceTimeMs = 0;
+    mAlertTimeMs     = 0;
+    
     cancelAlert();
     NotificationManager nm = new NotificationManager(this);
     nm.clearNotification();
+    
+    updateNextAlertText();
   }
 
   // Number picker callback
@@ -142,41 +161,31 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   public void onNothingSelected(AdapterView<?> parent)
   {}
 
-  protected void setAlert()
+  protected void setAlert(long alertTimeMs)
   {
     Intent intent = new Intent(this, HasenTagService.class);   
-    PendingIntent pendingServiceIntent = PendingIntent.getService(this, 0, intent, 0);
-      
-    StringBuilder alertTimeStringBuilder = new StringBuilder();
+    PendingIntent pendingServiceIntent = PendingIntent.getService(this, 0, intent, 0);     
     
-    AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-    long alarmTimeInElapsedRealtime = AlarmTimeCalculator.getAlarmTime(mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue, alertTimeStringBuilder);
-    alarm.set(AlarmManager.ELAPSED_REALTIME, alarmTimeInElapsedRealtime, pendingServiceIntent);
-    
-    updateNextReminderString(alertTimeStringBuilder.toString());
-    
-    CharSequence text = getString(R.string.toast_message_pre)
-        + " " + String.valueOf(mSmallCleaningIntervalValue)
-        + " " + mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit)
-        + " " + getString(R.string.toast_message_post);    
-    Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);    
+    alarm.set(AlarmManager.RTC, alertTimeMs, pendingServiceIntent);
   }
   
   protected void cancelAlert()
-  {
+  {    
     // TODO: Don't instantiate twice...
     Intent intent = new Intent(this, HasenTagService.class);   
     PendingIntent pendingServiceIntent = PendingIntent.getService(this, 0, intent, 0);
       
     AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
     alarm.cancel(pendingServiceIntent);
-    
-    updateNextReminderString(getString(R.string.next_no_reminder_text));
   }
   
-  protected void updateNextReminderString(String nextReminderString)
+  protected void updateNextAlertText()
   {
-    mNextReminderString = nextReminderString;
-    mNextReminderTextView.setText(mNextReminderString);
+    if (mAlertTimeMs != 0)
+      mNextReminderTextView.setText(new Date(mAlertTimeMs).toString());
+    else
+      mNextReminderTextView.setText(getString(R.string.next_no_reminder_text));
   }
+
 }

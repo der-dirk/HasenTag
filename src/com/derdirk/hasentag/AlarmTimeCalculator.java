@@ -1,50 +1,56 @@
 package com.derdirk.hasentag;
 
 import java.util.Calendar;
+import java.util.Date;
 
-import android.os.SystemClock;
 import android.util.Log;
 
 public class AlarmTimeCalculator
 {
 
-  public static long getAlarmTime(int field, int value, StringBuilder alertTimeString)
+  public static long getAlarmTime(long referenceTimeMs, int intervalUnit, int intervalValue)
   {
-    long elapsedTimeNowMs = SystemClock.elapsedRealtime();
-
-    Calendar cal = Calendar.getInstance();
-    cal.setFirstDayOfWeek(Calendar.MONDAY);
+    Log.d("AlarmTimeCalculator", "Reference time: " + new Date(referenceTimeMs).toString());
     
-    // Get current time 
-    long nowMs = cal.getTimeInMillis();
-    Log.d("AlarmTimeCalculator", "Now: " + cal.getTime().toString());
+    // Get current time and setup calendar
     
-    // Calculate alter time
-    cal.add(field, value);
-    Log.d("AlarmTimeCalculator", "Then: " + cal.getTime().toString());
+    Calendar calNow = Calendar.getInstance();    
+    Log.d("AlarmTimeCalculator", "Now: " + calNow.getTime().toString());
+    
+    // Calculate alert time
 
-    // Set to beginning of the period
-    if (field == Calendar.WEEK_OF_YEAR)
+    Calendar calAlertTime = Calendar.getInstance();
+    calAlertTime.setTimeInMillis(referenceTimeMs);
+     
+    if (calAlertTime.equals(calNow))
+      calAlertTime.add(intervalUnit, intervalValue);
+    
+    while(calAlertTime.before(calNow))
     {
-      cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-      cal.set(Calendar.HOUR_OF_DAY, 0);
-      cal.set(Calendar.MINUTE, 0);
-      cal.set(Calendar.SECOND, 0);
+      calAlertTime.add(intervalUnit, intervalValue);
     }
-    else if (field == Calendar.DAY_OF_YEAR)
+
+    Log.d("AlarmTimeCalculator", "Then: " + calAlertTime.getTime().toString());
+   
+    // Set to beginning of the period
+    
+    if (intervalUnit == Calendar.WEEK_OF_YEAR)
     {
-      cal.set(Calendar.HOUR_OF_DAY, 0);
-      cal.set(Calendar.MINUTE, 0);
-      cal.set(Calendar.SECOND, 0);
+      calAlertTime.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+      calAlertTime.set(Calendar.HOUR_OF_DAY, 0);
+      calAlertTime.set(Calendar.MINUTE, 0);
+      calAlertTime.set(Calendar.SECOND, 0);
+    }
+    else if (intervalUnit == Calendar.DAY_OF_YEAR)
+    {
+      calAlertTime.set(Calendar.HOUR_OF_DAY, 0);
+      calAlertTime.set(Calendar.MINUTE, 0);
+      calAlertTime.set(Calendar.SECOND, 0);
     }    
-    long thenAdjustedMs = cal.getTimeInMillis();
-    Log.d("AlarmTimeCalculator", "Then adjusted: " + cal.getTime().toString());
+    long thenAdjustedMs = calAlertTime.getTimeInMillis();
+    Log.d("AlarmTimeCalculator", "Then adjusted: " + calAlertTime.getTime().toString());
     
-    // Calculate interval
-    long alarmIntervalMs = thenAdjustedMs - nowMs;
-    
-    // Return Alarm time and alert time string
-    alertTimeString.append(cal.getTime().toString());
-    return elapsedTimeNowMs + alarmIntervalMs;
+    // Return Alarm time
+    return thenAdjustedMs;
   }
 }
