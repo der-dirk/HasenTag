@@ -123,12 +123,6 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     setAlert(mAlertTimeMs);
     
     updateNextAlertText();
-    
-    CharSequence text = getString(R.string.toast_message_pre)
-        + " " + String.valueOf(mSmallCleaningIntervalValue)
-        + " " + mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit)
-        + " " + getString(R.string.toast_message_post);    
-    Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
   }
   
   public void onStopButtonPressed(View view)
