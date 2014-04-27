@@ -11,8 +11,6 @@
     <string name="next_no_reminder_text">Keine</string>
     <string name="notification_title">Hasen Tag</string>
     <string name="notification_message">Zeit zum Saubermachen!</string>
-    <string name="toast_message_pre">Erinnerung wird in</string>
-    <string name="toast_message_post">angezeigt.</string>
     
     <string name="seconds">Sekunde(n)</string>
     <string name="days">Tag(e)</string>

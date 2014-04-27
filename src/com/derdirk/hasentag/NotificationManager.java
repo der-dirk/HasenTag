@@ -8,26 +8,31 @@ import android.content.Intent;
 public class NotificationManager
 {
   private static int NOTIFICATION_ID = 12;
- 
-  private Context mApplicationContext;
   
-  public NotificationManager(Context applicationContext)
+  public static void setNotification(Context context)
   {
-    mApplicationContext = applicationContext;
+    android.app.NotificationManager notificationManager = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    notificationManager.notify(NOTIFICATION_ID, buildNotification(context));
   }
-
-  public Notification buildNotification()
+  
+  public static void clearNotification(Context context)
+  {
+    android.app.NotificationManager notificationManager = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    notificationManager.cancel(NOTIFICATION_ID);
+  }
+  
+  protected static Notification buildNotification(Context context)
   {
     // Prepare intent which is triggered if the
     // notification is selected
-    Intent intent = new Intent(mApplicationContext, MainActivity.class);
-    PendingIntent pIntent = PendingIntent.getActivity(mApplicationContext, 0, intent, 0);
+    Intent intent = new Intent(context, MainActivity.class);
+    PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
     // Build notification
     // Actions are just fake
-    Notification noti = new Notification.Builder(mApplicationContext)
-    .setContentTitle(mApplicationContext.getString(R.string.notification_title))
-    .setContentText(mApplicationContext.getString(R.string.notification_message))
+    Notification noti = new Notification.Builder(context)
+    .setContentTitle(context.getString(R.string.notification_title))
+    .setContentText(context.getString(R.string.notification_message))
     .setSmallIcon(R.drawable.icon_rabbit)
     .setContentIntent(pIntent)
 //    .addAction(R.drawable.ic_launcher, "Call", pIntent)
@@ -39,17 +44,5 @@ public class NotificationManager
     noti.flags |= Notification.FLAG_NO_CLEAR;
     
     return noti;
-  }
-  
-  public void setNotification(Notification notification)
-  {
-    android.app.NotificationManager notificationManager = (android.app.NotificationManager) mApplicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
-    notificationManager.notify(NOTIFICATION_ID, notification);
-  }
-  
-  public void clearNotification()
-  {
-    android.app.NotificationManager notificationManager = (android.app.NotificationManager) mApplicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
-    notificationManager.cancel(NOTIFICATION_ID);
-  }
+  }  
 }

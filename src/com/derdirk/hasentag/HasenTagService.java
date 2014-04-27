@@ -13,7 +13,6 @@ public class HasenTagService extends IntentService
   @Override
   protected void onHandleIntent(Intent workIntent)
   {
-    NotificationManager nm = new NotificationManager(this);
-    nm.setNotification(nm.buildNotification());
+     NotificationManager.setNotification(this);
   }
 }

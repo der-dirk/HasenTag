@@ -26,11 +26,14 @@ public class BootCompletedReceiver extends BroadcastReceiver
     Log.d("BootCompletedReceiver", "Now: " + calNow.getTime().toString());
     Log.d("BootCompletedReceiver", "Alert Time: " + calAlertTime.getTime().toString());
     
-    if (calNow.after(calAlertTime))
+    if (calNow.before(calAlertTime))
     {
-      NotificationManager nm = new NotificationManager(context);
-      nm.setNotification(nm.buildNotification());
-      
+      AlertManager.setAlert(context, alertTimeMs);
+      Log.d("BootCompletedReceiver", "Set alert");
+    }
+    else
+    {
+      NotificationManager.setNotification(context);
       Log.d("BootCompletedReceiver", "Set notification");
     }
   }

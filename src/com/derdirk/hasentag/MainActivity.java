@@ -4,10 +4,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,7 +15,6 @@ import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends Activity  implements OnItemSelectedListener, OnValueChangeListener
 {
@@ -78,6 +73,7 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     mNumberPicker.setValue(mSmallCleaningIntervalValue);
    
     // Init unit picker
+    @SuppressWarnings("unchecked")
     ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) mUnitSpinner.getAdapter();
     String selectedItem = mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit);
     int selectedItemNr = adapter.getPosition(selectedItem);
@@ -106,9 +102,8 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   
   public void onDoneButtonPressed(View view)
   {
-    cancelAlert();
-    NotificationManager nm = new NotificationManager(this);
-    nm.clearNotification();
+    AlertManager.cancelAlert(this);
+    NotificationManager.clearNotification(this);
     
     if (Calendar.getInstance().getTimeInMillis() < mAlertTimeMs)
       Log.d("MainActivity", "Reset reference time due to early 'done'");
@@ -120,7 +115,7 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
       
     mAlertTimeMs = AlarmTimeCalculator.getAlarmTime(mReferenceTimeMs, mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue);
     
-    setAlert(mAlertTimeMs);
+    AlertManager.setAlert(this, mAlertTimeMs);
     
     updateNextAlertText();
   }
@@ -130,9 +125,8 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     mReferenceTimeMs = 0;
     mAlertTimeMs     = 0;
     
-    cancelAlert();
-    NotificationManager nm = new NotificationManager(this);
-    nm.clearNotification();
+    AlertManager.cancelAlert(this);
+    NotificationManager.clearNotification(this);
     
     updateNextAlertText();
   }
@@ -154,25 +148,6 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   @Override
   public void onNothingSelected(AdapterView<?> parent)
   {}
-
-  protected void setAlert(long alertTimeMs)
-  {
-    Intent intent = new Intent(this, HasenTagService.class);   
-    PendingIntent pendingServiceIntent = PendingIntent.getService(this, 0, intent, 0);     
-    
-    AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);    
-    alarm.set(AlarmManager.RTC, alertTimeMs, pendingServiceIntent);
-  }
-  
-  protected void cancelAlert()
-  {    
-    // TODO: Don't instantiate twice...
-    Intent intent = new Intent(this, HasenTagService.class);   
-    PendingIntent pendingServiceIntent = PendingIntent.getService(this, 0, intent, 0);
-      
-    AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-    alarm.cancel(pendingServiceIntent);
-  }
   
   protected void updateNextAlertText()
   {
