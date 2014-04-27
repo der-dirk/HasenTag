@@ -66,7 +66,7 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     super.onResume();
 
     // Restore preferences
-    SharedPreferences settings = getPreferences(MODE_PRIVATE);
+    SharedPreferences settings = getSharedPreferences("HasenTag", MODE_PRIVATE);
     mSmallCleaningIntervalUnit  = settings.getInt( "SmallUnit",     Calendar.DAY_OF_YEAR);
     mSmallCleaningIntervalValue = settings.getInt( "SmallValue",    2);
     mBigCleaningIntervalUnit    = settings.getInt( "BigUnit",       Calendar.WEEK_OF_YEAR);
@@ -93,7 +93,7 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     super.onPause();
     
     // Save preferences
-    SharedPreferences settings = getPreferences(MODE_PRIVATE);
+    SharedPreferences settings = getSharedPreferences("HasenTag", MODE_PRIVATE);
     SharedPreferences.Editor editor = settings.edit();
     editor.putInt( "SmallUnit",     mSmallCleaningIntervalUnit);
     editor.putInt( "SmallValue",    mSmallCleaningIntervalValue);
