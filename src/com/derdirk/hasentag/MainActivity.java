@@ -111,7 +111,7 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     // Reset reference time if the done button was pressed before an alert was issued
     // or if the reference time was not set yet
     if (mReferenceTimeMs == 0 || Calendar.getInstance().getTimeInMillis() < mAlertTimeMs)
-      mReferenceTimeMs = Calendar.getInstance().getTimeInMillis();
+      mReferenceTimeMs = AlarmTimeCalculator.getReferenceTime(Calendar.getInstance().getTimeInMillis(), mSmallCleaningIntervalUnit);
       
     mAlertTimeMs = AlarmTimeCalculator.getAlarmTime(mReferenceTimeMs, mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue);
     
