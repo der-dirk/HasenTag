@@ -22,7 +22,6 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   protected int    mSmallCleaningIntervalValue = 5;
   protected int    mBigCleaningIntervalUnit    = Calendar.WEEK_OF_YEAR;
   protected int    mBigCleaningIntervalValue   = 4;
-  protected long   mReferenceTimeMs            = 0;
   protected long   mAlertTimeMs                = 0;
   
   protected NumberPicker          mNumberPicker          = null;
@@ -62,12 +61,11 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
 
     // Restore preferences
     SharedPreferences settings = getSharedPreferences("HasenTag", MODE_PRIVATE);
-    mSmallCleaningIntervalUnit  = settings.getInt( "SmallUnit",     Calendar.DAY_OF_YEAR);
-    mSmallCleaningIntervalValue = settings.getInt( "SmallValue",    2);
-    mBigCleaningIntervalUnit    = settings.getInt( "BigUnit",       Calendar.WEEK_OF_YEAR);
-    mBigCleaningIntervalValue   = settings.getInt( "BigValue",      4);
-    mReferenceTimeMs            = settings.getLong("ReferenceTime", 0);
-    mAlertTimeMs                = settings.getLong("AlertTime",     0);
+    mSmallCleaningIntervalUnit  = settings.getInt( "SmallUnit",  Calendar.DAY_OF_YEAR);
+    mSmallCleaningIntervalValue = settings.getInt( "SmallValue", 2);
+    mBigCleaningIntervalUnit    = settings.getInt( "BigUnit",    Calendar.WEEK_OF_YEAR);
+    mBigCleaningIntervalValue   = settings.getInt( "BigValue",   4);
+    mAlertTimeMs                = settings.getLong("AlertTime",  0);
     
     // Init interval picker
     mNumberPicker.setValue(mSmallCleaningIntervalValue);
@@ -91,12 +89,11 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     // Save preferences
     SharedPreferences settings = getSharedPreferences("HasenTag", MODE_PRIVATE);
     SharedPreferences.Editor editor = settings.edit();
-    editor.putInt( "SmallUnit",     mSmallCleaningIntervalUnit);
-    editor.putInt( "SmallValue",    mSmallCleaningIntervalValue);
-    editor.putInt( "BigUnit",       mBigCleaningIntervalUnit);
-    editor.putInt( "BigValue",      mBigCleaningIntervalValue);
-    editor.putLong("ReferenceTime", mReferenceTimeMs);
-    editor.putLong("AlertTime",     mAlertTimeMs);
+    editor.putInt( "SmallUnit",  mSmallCleaningIntervalUnit);
+    editor.putInt( "SmallValue", mSmallCleaningIntervalValue);
+    editor.putInt( "BigUnit",    mBigCleaningIntervalUnit);
+    editor.putInt( "BigValue",   mBigCleaningIntervalValue);
+    editor.putLong("AlertTime",  mAlertTimeMs);
     editor.commit();
   }
   
@@ -110,10 +107,10 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     
     // Reset reference time if the done button was pressed before an alert was issued
     // or if the reference time was not set yet
-    if (mReferenceTimeMs == 0 || Calendar.getInstance().getTimeInMillis() < mAlertTimeMs)
-      mReferenceTimeMs = AlarmTimeCalculator.getReferenceTime(Calendar.getInstance().getTimeInMillis(), mSmallCleaningIntervalUnit);
+    if (mAlertTimeMs == 0 || Calendar.getInstance().getTimeInMillis() < mAlertTimeMs)
+      mAlertTimeMs = Calendar.getInstance().getTimeInMillis();
       
-    mAlertTimeMs = AlarmTimeCalculator.getAlarmTime(mReferenceTimeMs, mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue);
+    mAlertTimeMs = AlarmTimeCalculator.getAlarmTime(mAlertTimeMs, mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue);
     
     AlertManager.setAlert(this, mAlertTimeMs);
     
@@ -122,8 +119,7 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   
   public void onStopButtonPressed(View view)
   {
-    mReferenceTimeMs = 0;
-    mAlertTimeMs     = 0;
+    mAlertTimeMs = 0;
     
     AlertManager.cancelAlert(this);
     NotificationManager.clearNotification(this);
@@ -152,9 +148,9 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   protected void updateNextAlertText()
   {
     if (mAlertTimeMs != 0)
-      mNextReminderTextView.setText(new Date(mAlertTimeMs).toString());
+      mNextReminderTextView.setText(DateFormat.format(new Date(mAlertTimeMs), mSmallCleaningIntervalUnit));
     else
-      mNextReminderTextView.setText(getString(R.string.next_no_reminder_text));
+      mNextReminderTextView.setText(getString(R.string.no_next_reminder_text));
   }
 
 }
