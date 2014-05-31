@@ -16,9 +16,7 @@ import com.derdirk.hasentag.UnitChooserDialogFragment.UnitChooserDialogListener;
 import com.derdirk.hasentag.ValueChooserDialogFragment.ValueChooserClient;
 
 public class MainActivity extends    FragmentActivity
-                          implements /*OnItemSelectedListener, */
-                                     /*OnValueChangeListener,*/ 
-                                     UnitChooserDialogListener, 
+                          implements UnitChooserDialogListener, 
                                      ValueChooserClient,
                                      OnClickListener
 {
@@ -26,11 +24,8 @@ public class MainActivity extends    FragmentActivity
   protected int    mSmallCleaningIntervalValue = 5;
   protected int    mBigCleaningIntervalUnit    = Calendar.WEEK_OF_YEAR;
   protected int    mBigCleaningIntervalValue   = 4;
-  protected long   mReferenceTimeMs            = 0;
   protected long   mAlertTimeMs                = 0;
   
-//  protected NumberPicker              mNumberPicker          = null;
-//  protected Spinner                   mUnitSpinner           = null;
   protected TextView                  mValueLabelTextView    = null;
   protected TextView                  mUnitLabelTextView     = null;
   protected TextView                  mNextReminderTextView  = null;
@@ -42,24 +37,13 @@ public class MainActivity extends    FragmentActivity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     
-//    mNumberPicker          = (NumberPicker) findViewById(R.id.number_picker);
     mValueLabelTextView    = (TextView)     findViewById(R.id.value_label_text_view);
-//    mUnitSpinner           = (Spinner)      findViewById(R.id.small_unit_spinner);
     mUnitLabelTextView     = (TextView)     findViewById(R.id.unit_label_text_view);
     mNextReminderTextView  = (TextView)     findViewById(R.id.next_reminder_text_view);
     mUnitToResourceMapping = new UnitToResourceMapping(this);
     
-//    mNumberPicker.setOnValueChangedListener(this);
     mValueLabelTextView.setOnClickListener(this);
-//    mUnitSpinner.setOnItemSelectedListener(this);
     mUnitLabelTextView.setOnClickListener(this);
-    
-//    // Create an ArrayAdapter using the string array and a default spinner layout
-//    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.units_array, android.R.layout.simple_spinner_item);
-//    // Specify the layout to use when the list of choices appears
-//    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//    // Apply the adapter to the spinner
-//    mUnitSpinner.setAdapter(adapter);
   }
 
   @Override
@@ -69,22 +53,13 @@ public class MainActivity extends    FragmentActivity
 
     // Restore preferences
     SharedPreferences settings = getSharedPreferences("HasenTag", MODE_PRIVATE);
-    mSmallCleaningIntervalUnit  = settings.getInt( "SmallUnit",     Calendar.DAY_OF_YEAR);
-    mSmallCleaningIntervalValue = settings.getInt( "SmallValue",    2);
-    mBigCleaningIntervalUnit    = settings.getInt( "BigUnit",       Calendar.WEEK_OF_YEAR);
-    mBigCleaningIntervalValue   = settings.getInt( "BigValue",      4);
-    mReferenceTimeMs            = settings.getLong("ReferenceTime", 0);
-    mAlertTimeMs                = settings.getLong("AlertTime",     0);
+    mSmallCleaningIntervalUnit  = settings.getInt( "SmallUnit",  Calendar.DAY_OF_YEAR);
+    mSmallCleaningIntervalValue = settings.getInt( "SmallValue", 2);
+    mBigCleaningIntervalUnit    = settings.getInt( "BigUnit",    Calendar.WEEK_OF_YEAR);
+    mBigCleaningIntervalValue   = settings.getInt( "BigValue",   4);
+    mAlertTimeMs                = settings.getLong("AlertTime",  0);
     
-    // Init interval picker
-//    mNumberPicker.setValue(mSmallCleaningIntervalValue);
-   
-//    // Init unit picker
-//    @SuppressWarnings("unchecked")
-//    ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) mUnitSpinner.getAdapter();
-//    String selectedItem = mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit);
-//    int selectedItemNr = adapter.getPosition(selectedItem);
-//    mUnitSpinner.setSelection(selectedItemNr);
+    mValueLabelTextView.setText(Integer.toString(mSmallCleaningIntervalValue));
     mUnitLabelTextView.setText(mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit));
     
     // Update reminder text
@@ -99,12 +74,11 @@ public class MainActivity extends    FragmentActivity
     // Save preferences
     SharedPreferences settings = getSharedPreferences("HasenTag", MODE_PRIVATE);
     SharedPreferences.Editor editor = settings.edit();
-    editor.putInt( "SmallUnit",     mSmallCleaningIntervalUnit);
-    editor.putInt( "SmallValue",    mSmallCleaningIntervalValue);
-    editor.putInt( "BigUnit",       mBigCleaningIntervalUnit);
-    editor.putInt( "BigValue",      mBigCleaningIntervalValue);
-    editor.putLong("ReferenceTime", mReferenceTimeMs);
-    editor.putLong("AlertTime",     mAlertTimeMs);
+    editor.putInt( "SmallUnit",  mSmallCleaningIntervalUnit);
+    editor.putInt( "SmallValue", mSmallCleaningIntervalValue);
+    editor.putInt( "BigUnit",    mBigCleaningIntervalUnit);
+    editor.putInt( "BigValue",   mBigCleaningIntervalValue);
+    editor.putLong("AlertTime",  mAlertTimeMs);
     editor.commit();
   }
   
@@ -118,10 +92,10 @@ public class MainActivity extends    FragmentActivity
     
     // Reset reference time if the done button was pressed before an alert was issued
     // or if the reference time was not set yet
-    if (mReferenceTimeMs == 0 || Calendar.getInstance().getTimeInMillis() < mAlertTimeMs)
-      mReferenceTimeMs = AlarmTimeCalculator.getReferenceTime(Calendar.getInstance().getTimeInMillis(), mSmallCleaningIntervalUnit);
+    if (mAlertTimeMs == 0 || Calendar.getInstance().getTimeInMillis() < mAlertTimeMs)
+      mAlertTimeMs = Calendar.getInstance().getTimeInMillis();
       
-    mAlertTimeMs = AlarmTimeCalculator.getAlarmTime(mReferenceTimeMs, mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue);
+    mAlertTimeMs = AlarmTimeCalculator.getAlarmTime(mAlertTimeMs, mSmallCleaningIntervalUnit, mSmallCleaningIntervalValue);
     
     AlertManager.setAlert(this, mAlertTimeMs);
     
@@ -130,8 +104,7 @@ public class MainActivity extends    FragmentActivity
   
   public void onStopButtonPressed(View view)
   {
-    mReferenceTimeMs = 0;
-    mAlertTimeMs     = 0;
+    mAlertTimeMs = 0;
     
     AlertManager.cancelAlert(this);
     NotificationManager.clearNotification(this);
@@ -139,30 +112,12 @@ public class MainActivity extends    FragmentActivity
     updateNextAlertText();
   }
 
-//  // Number picker callback
-//  @Override
-//  public void onValueChange(NumberPicker picker, int oldVal, int newVal)
-//  {
-//    mSmallCleaningIntervalValue = newVal;
-//  }
-  
-//  // Spinner callbacks 
-//  @Override
-//  public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
-//  {
-//    mSmallCleaningIntervalUnit = mUnitToResourceMapping.getUnit((String)mUnitSpinner.getItemAtPosition(pos));
-//  }
-  
-//  @Override
-//  public void onNothingSelected(AdapterView<?> parent)
-//  {}
-  
   protected void updateNextAlertText()
   {
     if (mAlertTimeMs != 0)
       mNextReminderTextView.setText(new Date(mAlertTimeMs).toString());
     else
-      mNextReminderTextView.setText(getString(R.string.next_no_reminder_text));
+      mNextReminderTextView.setText(getString(R.string.no_next_reminder_text));
   }
 
   protected void showValueChooser()

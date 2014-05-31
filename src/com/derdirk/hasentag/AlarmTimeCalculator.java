@@ -19,41 +19,26 @@ public class AlarmTimeCalculator
     
     // Calculate alert time
 
-    Calendar calAlertTime = Calendar.getInstance();
-    calAlertTime.setTimeInMillis(referenceTimeMs);
+    Calendar calAlarmTime = Calendar.getInstance();
+    calAlarmTime.setTimeInMillis(referenceTimeMs);
      
-    if (calAlertTime.equals(calNow))
-      calAlertTime.add(intervalUnit, intervalValue);
+    if (calAlarmTime.equals(calNow))
+      calAlarmTime.add(intervalUnit, intervalValue);
     
-    while(calAlertTime.before(calNow))
+    while(calAlarmTime.before(calNow))
     {
-      calAlertTime.add(intervalUnit, intervalValue);
+      calAlarmTime.add(intervalUnit, intervalValue);
+      calAlarmTime = adjustTimeToInterval(calAlarmTime, intervalUnit);
     }
 
-    Log.d("AlarmTimeCalculator", "getAlarmTime: Then: " + calAlertTime.getTime().toString());
-   
-    // Set to beginning of the period
-    calAlertTime = adjustTimeToInterval(calAlertTime, intervalUnit);
-     
-    long thenAdjustedMs = calAlertTime.getTimeInMillis();
-    Log.d("AlarmTimeCalculator", "getAlarmTime: Then adjusted: " + calAlertTime.getTime().toString());
+    long alarmTimeAdjustedMs = calAlarmTime.getTimeInMillis();
+    Log.d("AlarmTimeCalculator", "getAlarmTime: Then adjusted: " + calAlarmTime.getTime().toString());
     
     // Return Alarm time
-    return thenAdjustedMs;
+    return alarmTimeAdjustedMs;
   }
   
-  public static long getReferenceTime(long timeMs, int intervalUnit)
-  {
-    Calendar calReferenceTime = Calendar.getInstance();
-    calReferenceTime.setTimeInMillis(timeMs);    
-    Log.d("AlarmTimeCalculator", "getReferenceTime: Time: " + calReferenceTime.getTime().toString());
-    
-    calReferenceTime = adjustTimeToInterval(calReferenceTime, intervalUnit);    
-    Log.d("AlarmTimeCalculator", "getReferenceTime: Reference time: " + calReferenceTime.getTime().toString());
-    
-    return calReferenceTime.getTimeInMillis();
-  }
-  
+  // For day or week intervals: Set the time to the beginning of the interval
   private static Calendar adjustTimeToInterval(Calendar calTime, int intervalUnit)
   {    
     if (intervalUnit == Calendar.WEEK_OF_YEAR)

@@ -8,7 +8,7 @@
     <string name="reminder_label_text">Erinnerung:</string>
     <string name="next_reminder_label_text">Nächste Erinnerung:</string>
     <string name="next_reminder_default_text">Unbekannt</string>
-    <string name="next_no_reminder_text">Keine</string>
+    <string name="no_next_reminder_text">Keine</string>
     <string name="notification_title">Hasen Tag</string>
     <string name="notification_message">Zeit zum Saubermachen!</string>
     
