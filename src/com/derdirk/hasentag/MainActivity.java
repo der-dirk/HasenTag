@@ -3,20 +3,24 @@ package com.derdirk.hasentag;
 import java.util.Calendar;
 import java.util.Date;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
-import android.widget.NumberPicker;
-import android.widget.NumberPicker.OnValueChangeListener;
-import android.widget.Spinner;
+import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-public class MainActivity extends Activity  implements OnItemSelectedListener, OnValueChangeListener
+import com.derdirk.hasentag.UnitChooserDialogFragment.UnitChooserDialogListener;
+import com.derdirk.hasentag.ValueChooserDialogFragment.ValueChooserClient;
+
+public class MainActivity extends    FragmentActivity
+                          implements /*OnItemSelectedListener, */
+                                     /*OnValueChangeListener,*/ 
+                                     UnitChooserDialogListener, 
+                                     ValueChooserClient,
+                                     OnClickListener
 {
   protected int    mSmallCleaningIntervalUnit  = Calendar.SECOND;
   protected int    mSmallCleaningIntervalValue = 5;
@@ -25,10 +29,12 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
   protected long   mReferenceTimeMs            = 0;
   protected long   mAlertTimeMs                = 0;
   
-  protected NumberPicker          mNumberPicker          = null;
-  protected Spinner               mUnitSpinner           = null;
-  protected TextView              mNextReminderTextView  = null;
-  protected UnitToResourceMapping mUnitToResourceMapping = null;
+//  protected NumberPicker              mNumberPicker          = null;
+//  protected Spinner                   mUnitSpinner           = null;
+  protected TextView                  mValueLabelTextView    = null;
+  protected TextView                  mUnitLabelTextView     = null;
+  protected TextView                  mNextReminderTextView  = null;
+  protected UnitToResourceMapping     mUnitToResourceMapping = null;
   
   @Override
   protected void onCreate(Bundle savedInstanceState)
@@ -36,23 +42,24 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     
-    mNumberPicker          = (NumberPicker) findViewById(R.id.number_picker);
-    mUnitSpinner           = (Spinner)      findViewById(R.id.small_unit_spinner);
+//    mNumberPicker          = (NumberPicker) findViewById(R.id.number_picker);
+    mValueLabelTextView    = (TextView)     findViewById(R.id.value_label_text_view);
+//    mUnitSpinner           = (Spinner)      findViewById(R.id.small_unit_spinner);
+    mUnitLabelTextView     = (TextView)     findViewById(R.id.unit_label_text_view);
     mNextReminderTextView  = (TextView)     findViewById(R.id.next_reminder_text_view);
     mUnitToResourceMapping = new UnitToResourceMapping(this);
     
-    mNumberPicker.setOnValueChangedListener(this);
-    mUnitSpinner.setOnItemSelectedListener(this);
+//    mNumberPicker.setOnValueChangedListener(this);
+    mValueLabelTextView.setOnClickListener(this);
+//    mUnitSpinner.setOnItemSelectedListener(this);
+    mUnitLabelTextView.setOnClickListener(this);
     
-    mNumberPicker.setMinValue(1);
-    mNumberPicker.setMaxValue(1000);
-    
-    // Create an ArrayAdapter using the string array and a default spinner layout
-    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.units_array, android.R.layout.simple_spinner_item);
-    // Specify the layout to use when the list of choices appears
-    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    // Apply the adapter to the spinner
-    mUnitSpinner.setAdapter(adapter);
+//    // Create an ArrayAdapter using the string array and a default spinner layout
+//    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.units_array, android.R.layout.simple_spinner_item);
+//    // Specify the layout to use when the list of choices appears
+//    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//    // Apply the adapter to the spinner
+//    mUnitSpinner.setAdapter(adapter);
   }
 
   @Override
@@ -70,14 +77,15 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     mAlertTimeMs                = settings.getLong("AlertTime",     0);
     
     // Init interval picker
-    mNumberPicker.setValue(mSmallCleaningIntervalValue);
+//    mNumberPicker.setValue(mSmallCleaningIntervalValue);
    
-    // Init unit picker
-    @SuppressWarnings("unchecked")
-    ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) mUnitSpinner.getAdapter();
-    String selectedItem = mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit);
-    int selectedItemNr = adapter.getPosition(selectedItem);
-    mUnitSpinner.setSelection(selectedItemNr);
+//    // Init unit picker
+//    @SuppressWarnings("unchecked")
+//    ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) mUnitSpinner.getAdapter();
+//    String selectedItem = mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit);
+//    int selectedItemNr = adapter.getPosition(selectedItem);
+//    mUnitSpinner.setSelection(selectedItemNr);
+    mUnitLabelTextView.setText(mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit));
     
     // Update reminder text
     updateNextAlertText();
@@ -131,23 +139,23 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
     updateNextAlertText();
   }
 
-  // Number picker callback
-  @Override
-  public void onValueChange(NumberPicker picker, int oldVal, int newVal)
-  {
-    mSmallCleaningIntervalValue = newVal;
-  }
+//  // Number picker callback
+//  @Override
+//  public void onValueChange(NumberPicker picker, int oldVal, int newVal)
+//  {
+//    mSmallCleaningIntervalValue = newVal;
+//  }
   
-  // Spinner callbacks 
-  @Override
-  public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
-  {
-    mSmallCleaningIntervalUnit = mUnitToResourceMapping.getUnit((String)mUnitSpinner.getItemAtPosition(pos));
-  }
+//  // Spinner callbacks 
+//  @Override
+//  public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
+//  {
+//    mSmallCleaningIntervalUnit = mUnitToResourceMapping.getUnit((String)mUnitSpinner.getItemAtPosition(pos));
+//  }
   
-  @Override
-  public void onNothingSelected(AdapterView<?> parent)
-  {}
+//  @Override
+//  public void onNothingSelected(AdapterView<?> parent)
+//  {}
   
   protected void updateNextAlertText()
   {
@@ -157,4 +165,55 @@ public class MainActivity extends Activity  implements OnItemSelectedListener, O
       mNextReminderTextView.setText(getString(R.string.next_no_reminder_text));
   }
 
+  protected void showValueChooser()
+  {
+    // Create and show the dialog.
+    DialogFragment newFragment = new ValueChooserDialogFragment();
+    newFragment.show(getSupportFragmentManager(), "valuechooser");
+  }  
+  
+  protected void showUnitChooser()
+  {
+    // Create and show the dialog.
+    DialogFragment newFragment = new UnitChooserDialogFragment();
+    newFragment.show(getSupportFragmentManager(), "unitchooser");
+  }
+  
+  // Value chooser callback
+  @Override
+  public int provideInitialValue(DialogFragment dialog)
+  {
+    return mSmallCleaningIntervalValue;
+  }
+  
+  // Value chooser callback
+  @Override
+  public void onValueSelected(DialogFragment dialog, int value)
+  {
+    mSmallCleaningIntervalValue = value;
+    mValueLabelTextView.setText(Integer.toString(mSmallCleaningIntervalValue));
+    
+  }
+  
+  // Unit chooser callback
+  @Override
+  public void onUnitSelected(DialogFragment dialog, int which)
+  {
+    switch (which) // TODO: Make this more generic
+    {
+      case 0: mSmallCleaningIntervalUnit = Calendar.SECOND; break;
+      case 1: mSmallCleaningIntervalUnit = Calendar.DAY_OF_YEAR; break;
+      case 2: mSmallCleaningIntervalUnit = Calendar.WEEK_OF_YEAR; break;
+    }
+    mUnitLabelTextView.setText(mUnitToResourceMapping.getResource(mSmallCleaningIntervalUnit));
+  }
+
+  @Override
+  public void onClick(View v)
+  {
+    if (v.getId() == R.id.unit_label_text_view)
+      showUnitChooser();
+    else if (v.getId() == R.id.value_label_text_view)
+      showValueChooser();
+  }  
 }
