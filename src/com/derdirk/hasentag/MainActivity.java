@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.derdirk.hasentag.UnitChooserDialogFragment.UnitChooserDialogListener;
@@ -28,6 +29,8 @@ public class MainActivity extends    FragmentActivity
   
   protected TextView                  mValueLabelTextView    = null;
   protected TextView                  mUnitLabelTextView     = null;
+  protected LinearLayout              mIntervalValueLayout   = null;
+  protected LinearLayout              mIntervalUnitLayout    = null;
   protected TextView                  mNextReminderTextView  = null;
   protected UnitToResourceMapping     mUnitToResourceMapping = null;
   
@@ -39,11 +42,13 @@ public class MainActivity extends    FragmentActivity
     
     mValueLabelTextView    = (TextView)     findViewById(R.id.value_label_text_view);
     mUnitLabelTextView     = (TextView)     findViewById(R.id.unit_label_text_view);
+    mIntervalValueLayout   = (LinearLayout) findViewById(R.id.interval_value_layout);
+    mIntervalUnitLayout    = (LinearLayout) findViewById(R.id.interval_unit_layout);
     mNextReminderTextView  = (TextView)     findViewById(R.id.next_reminder_text_view);
     mUnitToResourceMapping = new UnitToResourceMapping(this);
     
-    mValueLabelTextView.setOnClickListener(this);
-    mUnitLabelTextView.setOnClickListener(this);
+    mIntervalValueLayout.setOnClickListener(this);
+    mIntervalUnitLayout.setOnClickListener(this);
   }
 
   @Override
@@ -166,9 +171,9 @@ public class MainActivity extends    FragmentActivity
   @Override
   public void onClick(View v)
   {
-    if (v.getId() == R.id.unit_label_text_view)
+    if (v.getId() == R.id.interval_unit_layout)
       showUnitChooser();
-    else if (v.getId() == R.id.value_label_text_view)
+    else if (v.getId() == R.id.interval_value_layout)
       showValueChooser();
   }  
 }

@@ -5,7 +5,8 @@
     <string name="action_settings">Einstellungen</string>
     <string name="done_button_text">Fertig</string>
     <string name="stop_button_text">Erinnerungen Aus</string>
-    <string name="reminder_label_text">Erinnerung:</string>
+    <string name="reminder_label_text">Intervall:</string>
+    <string name="reminder_seperator">:</string>
     <string name="next_reminder_label_text">Nächste Erinnerung:</string>
     <string name="next_reminder_default_text">Unbekannt</string>
     <string name="no_next_reminder_text">Keine</string>
@@ -15,6 +16,7 @@
     <string name="unitchooser_title">Intervall Art</string>
     <string name="valuechooser_title">Intervall Länge</string>
     <string name="ok_text">OK</string>
+    <string name="cancel_text">Abbrechen</string>
     
     <string name="seconds">Sekunden</string>
     <string name="days">Tage</string>

@@ -3,22 +3,27 @@ package com.derdirk.hasentag;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnShowListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnKeyListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-public class ValueChooserDialogFragment extends DialogFragment implements OnShowListener
+public class ValueChooserDialogFragment extends DialogFragment implements OnShowListener, OnKeyListener
 {
   /* The activity that creates an instance of this dialog fragment must
    * implement this interface in order to receive event call-backs.
    * The method passes the DialogFragment in case the host needs to query it. */
   public interface ValueChooserClient
   {
-      public void onValueSelected(DialogFragment dialog, int value);
-      public int  provideInitialValue(DialogFragment dialog);
+    public void onValueSelected(DialogFragment dialog, int value);
+    public int  provideInitialValue(DialogFragment dialog);
   }
   
   // Use this instance of the interface to deliver action events
@@ -35,35 +40,34 @@ public class ValueChooserDialogFragment extends DialogFragment implements OnShow
     // Verify that the host activity implements the callback interface
     try
     {
-      // Instantiate the NoticeDialogListener so we can send events to the host
       mClient = (ValueChooserClient) activity;
     }
     catch (ClassCastException e)
     {
-      // The activity doesn't implement the interface, throw exception
-      throw new ClassCastException(activity.toString() + " must implement ValueChooserDialogListener and ValueChooserClient");
+      throw new ClassCastException(activity.toString() + " must implement ValueChooserClient");
     }
   }
   
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState)
   {
-    // Use the Builder class for convenient dialog construction
     AlertDialog.Builder builder  = new AlertDialog.Builder(getActivity());
     LayoutInflater      inflater = getActivity().getLayoutInflater();
 
     builder.setView(inflater.inflate(R.layout.value_chooser, null))
            .setTitle(R.string.valuechooser_title)
-           .setPositiveButton(R.string.ok_text, new DialogInterface.OnClickListener() {
-             public void onClick(DialogInterface dialogInterface, int id)
+           .setPositiveButton(R.string.ok_text, new DialogInterface.OnClickListener()
              {
-               AlertDialog dialog = (AlertDialog)dialogInterface;
-               EditText valueEdit = (EditText) dialog.findViewById(R.id.value_edit);
-               mClient.onValueSelected(ValueChooserDialogFragment.this, Integer.parseInt(valueEdit.getText().toString()));
-             }
-           });
-    
-    // Create the AlertDialog object and return it
+               public void onClick(DialogInterface dialogInterface, int id)
+               {
+                 commitValue((AlertDialog)dialogInterface);
+               }
+             })
+           .setNegativeButton(R.string.cancel_text, new DialogInterface.OnClickListener()
+             {
+               public void onClick(DialogInterface dialogInterface, int id)
+               {}
+             });
     
     Dialog dialog = builder.create();
     dialog.setOnShowListener(this);
@@ -72,11 +76,45 @@ public class ValueChooserDialogFragment extends DialogFragment implements OnShow
 
   @Override
   public void onShow(DialogInterface dialogInterface)
-  {    
+  {
+    // Get the current value of the interval
     int initialValue = mClient.provideInitialValue(this);
     
     Dialog dialog = (Dialog)dialogInterface;
+    
+    // Setup the value edit
     EditText valueEdit = (EditText) dialog.findViewById(R.id.value_edit);
     valueEdit.setText(Integer.toString(initialValue));
+    valueEdit.selectAll();
+    valueEdit.setOnKeyListener(this);
+    
+    showSoftKeyboard(dialog);
+  }
+  
+  // Listener callback for the EditText
+  @Override
+  public boolean onKey(View view, int keyCode, KeyEvent event)
+  {
+    if ((event.getAction() == KeyEvent.ACTION_DOWN ) && (keyCode == KeyEvent.KEYCODE_ENTER))
+    {
+      Dialog dialog = getDialog();         
+      commitValue(dialog);
+      dialog.cancel();
+      return true;
+    }
+    
+    return false;
+  }
+
+  protected void commitValue(Dialog dialog)
+  {
+    EditText valueEdit = (EditText) dialog.findViewById(R.id.value_edit);
+    mClient.onValueSelected(ValueChooserDialogFragment.this, Integer.parseInt(valueEdit.getText().toString()));
+  }
+  
+  protected void showSoftKeyboard(Dialog dialog)
+  {
+    InputMethodManager imm = (InputMethodManager) dialog.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,0);
   }
 }
