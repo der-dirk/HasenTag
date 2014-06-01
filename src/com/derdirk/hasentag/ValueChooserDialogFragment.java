@@ -56,14 +56,14 @@ public class ValueChooserDialogFragment extends DialogFragment implements OnShow
 
     builder.setView(inflater.inflate(R.layout.value_chooser, null))
            .setTitle(R.string.valuechooser_title)
-           .setPositiveButton(R.string.ok_text, new DialogInterface.OnClickListener()
+           .setPositiveButton(R.string.valuechooser_ok_text, new DialogInterface.OnClickListener()
              {
                public void onClick(DialogInterface dialogInterface, int id)
                {
                  commitValue((AlertDialog)dialogInterface);
                }
              })
-           .setNegativeButton(R.string.cancel_text, new DialogInterface.OnClickListener()
+           .setNegativeButton(R.string.valuechooser_cancel_text, new DialogInterface.OnClickListener()
              {
                public void onClick(DialogInterface dialogInterface, int id)
                {}
@@ -78,13 +78,13 @@ public class ValueChooserDialogFragment extends DialogFragment implements OnShow
   public void onShow(DialogInterface dialogInterface)
   {
     // Get the current value of the interval
-    int initialValue = mClient.provideInitialValue(this);
+    mInitialValue = mClient.provideInitialValue(this);
     
     Dialog dialog = (Dialog)dialogInterface;
     
     // Setup the value edit
     EditText valueEdit = (EditText) dialog.findViewById(R.id.value_edit);
-    valueEdit.setText(Integer.toString(initialValue));
+    valueEdit.setText(Integer.toString(mInitialValue));
     valueEdit.selectAll();
     valueEdit.setOnKeyListener(this);
     
@@ -109,7 +109,15 @@ public class ValueChooserDialogFragment extends DialogFragment implements OnShow
   protected void commitValue(Dialog dialog)
   {
     EditText valueEdit = (EditText) dialog.findViewById(R.id.value_edit);
-    mClient.onValueSelected(ValueChooserDialogFragment.this, Integer.parseInt(valueEdit.getText().toString()));
+    
+    // Try to parse the edit text as a number and commit if possible
+    try
+    {
+      int newValue = Integer.parseInt(valueEdit.getText().toString());
+      mClient.onValueSelected(ValueChooserDialogFragment.this, newValue);
+    }
+    catch (NumberFormatException e)
+    {}
   }
   
   protected void showSoftKeyboard(Dialog dialog)

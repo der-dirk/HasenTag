@@ -17,14 +17,14 @@ public class UnitToResourceMapping
     mApplicationContext = applicationContext;
     
     mUnitToResourceIdMapping = new SparseIntArray();
-    mUnitToResourceIdMapping.put(Calendar.SECOND,       R.string.seconds);
-    mUnitToResourceIdMapping.put(Calendar.DAY_OF_YEAR,  R.string.days);
-    mUnitToResourceIdMapping.put(Calendar.WEEK_OF_YEAR, R.string.weeks);
+    mUnitToResourceIdMapping.put(Calendar.SECOND,       R.string.interval_seconds);
+    mUnitToResourceIdMapping.put(Calendar.DAY_OF_YEAR,  R.string.interval_days);
+    mUnitToResourceIdMapping.put(Calendar.WEEK_OF_YEAR, R.string.interval_weeks);
     
     mResourceIdToResourceMapping = new SparseArray<String>();
-    mResourceIdToResourceMapping.put(R.string.seconds, applicationContext.getString(R.string.seconds));
-    mResourceIdToResourceMapping.put(R.string.days,    applicationContext.getString(R.string.days));
-    mResourceIdToResourceMapping.put(R.string.weeks,   applicationContext.getString(R.string.weeks));
+    mResourceIdToResourceMapping.put(R.string.interval_seconds, applicationContext.getString(R.string.interval_seconds));
+    mResourceIdToResourceMapping.put(R.string.interval_days,    applicationContext.getString(R.string.interval_days));
+    mResourceIdToResourceMapping.put(R.string.interval_weeks,   applicationContext.getString(R.string.interval_weeks));
   }
 
   public String getResource(int calendarUnit)

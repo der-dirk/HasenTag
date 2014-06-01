@@ -1,30 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- app title -->
     <string name="app_name">Hasen Tag</string>
-    <string name="action_settings">Einstellungen</string>
+    
+    <!-- main buttons -->
     <string name="done_button_text">Fertig</string>
     <string name="stop_button_text">Erinnerungen Aus</string>
-    <string name="reminder_label_text">Intervall:</string>
-    <string name="reminder_seperator">:</string>
-    <string name="next_reminder_label_text">Nächste Erinnerung:</string>
+    
+    <!-- intervall section -->
+    <string name="interval_label_text">Intervall:</string>
+    <string name="interval_seperator_text">:</string>
+    
+    <!-- next-reminder section -->
+    <string name="next_reminder_label_text">Aktuelle Erinnerung:</string>
     <string name="next_reminder_default_text">Unbekannt</string>
     <string name="no_next_reminder_text">Keine</string>
+    
+    <!-- notification -->
     <string name="notification_title">Hasen Tag</string>
-    <string name="notification_message">Zeit zum Saubermachen!</string>
+    <string name="notification_message_text">Zeit sauberzumachen!</string>
     
-    <string name="unitchooser_title">Intervall Art</string>
+    <!-- dialogs -->
+    <string name="unitchooser_title">Intervall Typ</string>
     <string name="valuechooser_title">Intervall Länge</string>
-    <string name="ok_text">OK</string>
-    <string name="cancel_text">Abbrechen</string>
+    <string name="valuechooser_ok_text">OK</string>
+    <string name="valuechooser_cancel_text">Abbrechen</string>
     
-    <string name="seconds">Sekunden</string>
-    <string name="days">Tage</string>
-    <string name="weeks">Wochen</string>
+    <!-- interval constants -->
+    <string name="interval_seconds">Sekunden</string>
+    <string name="interval_days">Tage</string>
+    <string name="interval_weeks">Wochen</string>
     
     <string-array name="units_array">
-        <item>@string/seconds</item>
-        <item>@string/days</item>
-        <item>@string/weeks</item>
+        <item>@string/interval_seconds</item>
+        <item>@string/interval_days</item>
+        <item>@string/interval_weeks</item>
     </string-array>
+    
 </resources>
