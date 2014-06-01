@@ -22,10 +22,9 @@ public class AlarmTimeCalculator
     Calendar calAlarmTime = Calendar.getInstance();
     calAlarmTime.setTimeInMillis(referenceTimeMs);
      
-    if (calAlarmTime.equals(calNow))
-      calAlarmTime.add(intervalUnit, intervalValue);
+    calAlarmTime = adjustTimeToInterval(calAlarmTime, intervalUnit);
     
-    while(calAlarmTime.before(calNow))
+    while(!calAlarmTime.after(calNow))
     {
       calAlarmTime.add(intervalUnit, intervalValue);
       calAlarmTime = adjustTimeToInterval(calAlarmTime, intervalUnit);
