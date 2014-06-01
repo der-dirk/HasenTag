@@ -115,9 +115,9 @@ public class MainActivity extends    FragmentActivity
   protected void updateNextAlertText()
   {
     if (mAlertTimeMs != 0)
-      mNextReminderTextView.setText(new Date(mAlertTimeMs).toString());
+      mNextReminderTextView.setText(DateFormat.format(new Date(mAlertTimeMs), mSmallCleaningIntervalUnit));
     else
-      mNextReminderTextView.setText(getString(R.string.no_next_reminder_text));
+      mNextReminderTextView.setText(getString(R.string.no_next_reminder_text));    
   }
 
   protected void showValueChooser()
