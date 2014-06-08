@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.derdirk.hasentag.MainActivity;
+
 public class BootCompletedReceiver extends BroadcastReceiver
 {
 
@@ -15,7 +17,7 @@ public class BootCompletedReceiver extends BroadcastReceiver
   public void onReceive(Context context, Intent intent)
   {
     SharedPreferences settings = context.getSharedPreferences("HasenTag", Context.MODE_PRIVATE);
-    long alertTimeMs = settings.getLong("AlertTime", 0);    
+    long alertTimeMs = settings.getLong(MainActivity.CurrentAlertTimeSettingsTag, 0);    
     
     Log.d("BootCompletedReceiver", "alertTimeMs: " + String.valueOf(alertTimeMs));
     

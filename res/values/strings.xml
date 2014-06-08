@@ -9,7 +9,7 @@
     <string name="stop_button_text">Erinnerungen Aus</string>
     
     <!-- intervall section -->
-    <string name="interval_label_text">Intervall:</string>
+    <string name="interval_label_text">Intervall für die nächste Erinnerung:</string>
     <string name="interval_seperator_text">:</string>
     
     <!-- next-reminder section -->

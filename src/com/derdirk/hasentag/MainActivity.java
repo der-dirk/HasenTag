@@ -21,10 +21,10 @@ public class MainActivity extends    FragmentActivity
                                      ValueChooserClient,
                                      OnClickListener
 {
-  protected final String NextIntervalUnitSettingsTag    = "NextIntervalUnit";
-  protected final String NextIntervalValueSettingsTag   = "NextIntervalValue";
-  protected final String CurrentAlertTimeSettingsTag    = "CurrentAlertTime";
-  protected final String CurrentIntervalUnitSettingsTag = "CurrentIntervalUnit";
+  public static final String NextIntervalUnitSettingsTag    = "NextIntervalUnit";
+  public static final String NextIntervalValueSettingsTag   = "NextIntervalValue";
+  public static final String CurrentAlertTimeSettingsTag    = "CurrentAlertTime";
+  public static final String CurrentIntervalUnitSettingsTag = "CurrentIntervalUnit";
   
   protected int    mNextIntervalUnit    = Calendar.SECOND;
   protected int    mNextIntervalValue   = 5;
