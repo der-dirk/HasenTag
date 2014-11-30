@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 
 public class NotificationManager
 {
@@ -30,7 +31,7 @@ public class NotificationManager
 
     // Build notification
     // Actions are just fake
-    Notification noti = new Notification.Builder(context)
+    Notification noti = new NotificationCompat.Builder(context)
     .setContentTitle(context.getString(R.string.notification_title))
     .setContentText(context.getString(R.string.notification_message_text))
     .setSmallIcon(R.drawable.icon_rabbit)
